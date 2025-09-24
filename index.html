@@ -149,6 +149,9 @@
                 const value = button.dataset.value || null;
 
                 if (command === 'createLink') {
+                    const selection = window.getSelection();
+                    const isTextSelected = selection.rangeCount > 0 && selection.getRangeAt(0).toString().length > 0;
+
                     const url = prompt('Enter the URL:');
                     if (url) {
                         // Ensure the URL has a protocol
@@ -157,18 +160,28 @@
                             fullUrl = 'http://' + url;
                         }
                         
-                        const selection = window.getSelection();
-                        if (selection.rangeCount > 0 && selection.getRangeAt(0).toString().length > 0) {
+                        if (isTextSelected) {
                             // If text is selected, turn it into a link
                             document.execCommand('createLink', false, fullUrl);
                         } else {
-                            // If no text is selected, insert the URL as a link
-                            const linkHtml = `<a href="${fullUrl}" target="_blank">${url}</a>`;
-                            document.execCommand('insertHTML', false, linkHtml);
+                            // If no text is selected, insert the URL as a new link
+                            const link = document.createElement('a');
+                            link.href = fullUrl;
+                            link.textContent = url;
+                            link.target = '_blank';
+                            
+                            const range = selection.getRangeAt(0);
+                            range.insertNode(link);
+
+                            // Move cursor after the inserted link
+                            range.setStartAfter(link);
+                            range.collapse(true);
+                            selection.removeAllRanges();
+                            selection.addRange(range);
                         }
                     }
-                } else {
-                    document.execCommand(command, false, value);
+                } else if (command === 'unlink') {
+                    document.execCommand('unlink', false);
                 }
                 editor.focus();
                 updateToolbar();
