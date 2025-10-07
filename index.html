@@ -29,14 +29,63 @@
             padding: 2rem;
         }
 
-        .container {
+                .container {
             width: 100%;
             max-width: 800px;
+            display: flex;
+            flex-direction: column;
+            height: calc(100vh - 4rem);
+        }
+
+        .main-content {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
             background-color: var(--surface-color);
             border-radius: 8px;
             box-shadow: var(--shadow);
             border: 1px solid var(--border-color);
             overflow: hidden;
+        }
+
+        .document-bar {
+            display: flex;
+            align-items: center;
+            padding: 0.5rem 0.75rem;
+            background-color: #f8fafc;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        #document-select {
+            font-family: var(--font-family);
+            font-size: 1rem;
+            font-weight: 500;
+            border: none;
+            background: none;
+            padding: 0.5rem;
+            border-radius: 4px;
+            margin-right: auto;
+        }
+        
+        #document-select:hover {
+            background-color: #e2e8f0;
+        }
+
+        .doc-button {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 0.5rem;
+            margin-left: 0.25rem;
+            border-radius: 4px;
+            font-size: 1rem;
+            color: var(--text-muted);
+            transition: background-color 0.2s, color 0.2s;
+        }
+
+        .doc-button:hover {
+            background-color: #e2e8f0;
+            color: var(--text-color);
         }
 
         .toolbar {
@@ -72,10 +121,11 @@
 
         .editor {
             padding: 2rem;
-            min-height: 60vh;
+            flex-grow: 1;
             outline: none;
             line-height: 1.7;
             font-size: 16px;
+            overflow-y: auto;
         }
         
         .editor:focus {
@@ -95,24 +145,32 @@
 <body>
 
     <div class="container">
-        <div class="toolbar">
-            <button class="toolbar-button" data-command="bold"><b>B</b></button>
-            <button class="toolbar-button" data-command="italic"><i>I</i></button>
-            <button class="toolbar-button" data-command="underline"><u>U</u></button>
-            <button class="toolbar-button" data-command="strikeThrough"><s>S</s></button>
-            <button class="toolbar-button" data-command="insertUnorderedList">●</button>
-            <button class="toolbar-button" data-command="insertOrderedList">1.</button>
-            <button class="toolbar-button" data-command="formatBlock" data-value="h1">H1</button>
-            <button class="toolbar-button" data-command="formatBlock" data-value="h2">H2</button>
-            <button class="toolbar-button" data-command="formatBlock" data-value="p">P</button>
-            <button class="toolbar-button" data-command="createLink">🔗</button>
-            <button class="toolbar-button" data-command="unlink">💔</button>
-            <button class="toolbar-button" data-command="undo">↩️</button>
-            <button class="toolbar-button" data-command="redo">↪️</button>
-        </div>
-        <div id="editor" class="editor" contenteditable="true"></div>
-        <div class="footer">
-            <span id="status">Saved</span>
+        <div class="main-content">
+            <div class="document-bar">
+                <select id="document-select"></select>
+                <button id="new-doc" class="doc-button" title="New Document">📄</button>
+                <button id="rename-doc" class="doc-button" title="Rename Document">✏️</button>
+                <button id="delete-doc" class="doc-button" title="Delete Document">🗑️</button>
+            </div>
+            <div class="toolbar">
+                <button class="toolbar-button" data-command="bold"><b>B</b></button>
+                <button class="toolbar-button" data-command="italic"><i>I</i></button>
+                <button class="toolbar-button" data-command="underline"><u>U</u></button>
+                <button class="toolbar-button" data-command="strikeThrough"><s>S</s></button>
+                <button class="toolbar-button" data-command="insertUnorderedList">●</button>
+                <button class="toolbar-button" data-command="insertOrderedList">1.</button>
+                <button class="toolbar-button" data-command="formatBlock" data-value="h1">H1</button>
+                <button class="toolbar-button" data-command="formatBlock" data-value="h2">H2</button>
+                <button class="toolbar-button" data-command="p">P</button>
+                <button class="toolbar-button" data-command="createLink">🔗</button>
+                <button class="toolbar-button" data-command="unlink">💔</button>
+                <button class="toolbar-button" data-command="undo">↩️</button>
+                <button class="toolbar-button" data-command="redo">↪️</button>
+            </div>
+            <div id="editor" class="editor" contenteditable="true"></div>
+            <div class="footer">
+                <span id="status">Saved</span>
+            </div>
         </div>
     </div>
 
@@ -121,23 +179,179 @@
             const editor = document.getElementById('editor');
             const status = document.getElementById('status');
             const toolbar = document.querySelector('.toolbar');
+            const docSelect = document.getElementById('document-select');
+            const newDocBtn = document.getElementById('new-doc');
+            const renameDocBtn = document.getElementById('rename-doc');
+            const deleteDocBtn = document.getElementById('delete-doc');
 
-            // Load content from local storage
-            if (localStorage.getItem('max-docs-content')) {
-                editor.innerHTML = localStorage.getItem('max-docs-content');
-            } else {
-                editor.innerHTML = '<h1>Welcome to your new document!</h1><p>Start typing here...</p>';
+            let state = {
+                documents: {},
+                currentDocId: null
+            };
+
+            function loadState() {
+                const savedState = localStorage.getItem('max-docs-multi');
+                if (savedState) {
+                    state = JSON.parse(savedState);
+                } else {
+                    // Initialize with a default document
+                    const defaultId = `doc-${Date.now()}`;
+                    state = {
+                        documents: {
+                            [defaultId]: {
+                                name: 'My First Document',
+                                content: '<h1>Welcome to your new document!</h1><p>Start typing here...</p>'
+                            }
+                        },
+                        currentDocId: defaultId
+                    };
+                }
+                // Handle case where old single document exists
+                const oldContent = localStorage.getItem('max-docs-content');
+                if (oldContent && Object.keys(state.documents).length === 0) {
+                    const oldDocId = `doc-migrated-${Date.now()}`;
+                    state.documents[oldDocId] = {
+                        name: 'Migrated Document',
+                        content: oldContent
+                    };
+                    state.currentDocId = oldDocId;
+                    localStorage.removeItem('max-docs-content');
+                }
+
+                // Ensure there's always a current document selected
+                if (!state.currentDocId || !state.documents[state.currentDocId]) {
+                    const documentIds = Object.keys(state.documents);
+                    if (documentIds.length > 0) {
+                        state.currentDocId = documentIds[0];
+                    }
+                }
             }
+
+            function saveState() {
+                // Update current doc content before saving
+                if (state.currentDocId && state.documents[state.currentDocId]) {
+                    state.documents[state.currentDocId].content = editor.innerHTML;
+                }
+                localStorage.setItem('max-docs-multi', JSON.stringify(state));
+                status.textContent = 'Saved';
+            }
+            
+            function render() {
+                // Populate dropdown
+                docSelect.innerHTML = '';
+                for (const id in state.documents) {
+                    const doc = state.documents[id];
+                    const option = document.createElement('option');
+                    option.value = id;
+                    option.textContent = doc.name;
+                    if (id === state.currentDocId) {
+                        option.selected = true;
+                    }
+                    docSelect.appendChild(option);
+                }
+
+                // Load editor content
+                if (state.currentDocId && state.documents[state.currentDocId]) {
+                    editor.innerHTML = state.documents[state.currentDocId].content;
+                } else {
+                    editor.innerHTML = ''; // No document selected
+                }
+
+                // Disable delete button if there's only one document
+                const docCount = Object.keys(state.documents).length;
+                deleteDocBtn.disabled = docCount <= 1;
+                deleteDocBtn.style.opacity = docCount <= 1 ? "0.5" : "1";
+
+                updateToolbar();
+            }
+
+            // --- Document Management Event Listeners ---
+
+            // Create a new document
+            newDocBtn.addEventListener('click', () => {
+                const docName = prompt('Enter the name for the new document:');
+                if (docName && docName.trim() !== '') {
+                    const newDocId = `doc-${Date.now()}`;
+                    
+                    // Save current document before switching
+                    saveState();
+                    
+                    state.documents[newDocId] = {
+                        name: docName,
+                        content: `<h1>${docName}</h1><p>Start writing here...</p>`
+                    };
+                    state.currentDocId = newDocId;
+                    saveState();
+                    render();
+                }
+            });
+
+            // Switch between documents
+            docSelect.addEventListener('change', () => {
+                const selectedId = docSelect.value;
+                if (selectedId && state.documents[selectedId]) {
+                    // Save current document before switching
+                    saveState();
+                    
+                    state.currentDocId = selectedId;
+                    render();
+                }
+            });
+
+            // Rename the current document
+            renameDocBtn.addEventListener('click', () => {
+                if (!state.currentDocId) return;
+                
+                const currentName = state.documents[state.currentDocId].name;
+                const newName = prompt('Enter a new name for this document:', currentName);
+                
+                if (newName && newName.trim() !== '') {
+                    state.documents[state.currentDocId].name = newName;
+                    saveState();
+                    render();
+                }
+            });
+
+            // Delete the current document
+            deleteDocBtn.addEventListener('click', () => {
+                if (!state.currentDocId) return;
+                
+                const docCount = Object.keys(state.documents).length;
+                if (docCount <= 1) {
+                    alert("You can't delete the last document.");
+                    return;
+                }
+                
+                const confirmDelete = confirm(`Are you sure you want to delete "${state.documents[state.currentDocId].name}"?`);
+                if (confirmDelete) {
+                    // Find another document to switch to
+                    let nextDocId = null;
+                    for (const id in state.documents) {
+                        if (id !== state.currentDocId) {
+                            nextDocId = id;
+                            break;
+                        }
+                    }
+                    
+                    // Delete the current document
+                    delete state.documents[state.currentDocId];
+                    
+                    // Switch to another document
+                    state.currentDocId = nextDocId;
+                    saveState();
+                    render();
+                }
+            });
+
+            loadState();
+            render();
 
             // Save content to local storage
             let saveTimeout;
             editor.addEventListener('input', () => {
                 status.textContent = 'Saving...';
                 clearTimeout(saveTimeout);
-                saveTimeout = setTimeout(() => {
-                    localStorage.setItem('max-docs-content', editor.innerHTML);
-                    status.textContent = 'Saved';
-                }, 500);
+                saveTimeout = setTimeout(saveState, 500);
             });
 
             // Toolbar functionality
@@ -182,6 +396,8 @@
                     }
                 } else if (command === 'unlink') {
                     document.execCommand('unlink', false);
+                } else {
+                    document.execCommand(command, false, value);
                 }
                 editor.focus();
                 updateToolbar();
@@ -207,5 +423,3 @@
 
 </body>
 </html>
-
-<!-- Trigger deployment -->
