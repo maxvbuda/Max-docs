@@ -119,6 +119,23 @@
             color: var(--primary-color);
         }
 
+        .toolbar-select {
+            font-family: var(--font-family);
+            font-size: 0.9rem;
+            padding: 0.35rem;
+            margin: 0 0.25rem;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            background-color: white;
+            color: var(--text-muted);
+            cursor: pointer;
+        }
+
+        .toolbar-select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
         .editor {
             padding: 2rem;
             flex-grow: 1;
@@ -161,7 +178,17 @@
                 <button class="toolbar-button" data-command="insertOrderedList">1.</button>
                 <button class="toolbar-button" data-command="formatBlock" data-value="h1">H1</button>
                 <button class="toolbar-button" data-command="formatBlock" data-value="h2">H2</button>
-                <button class="toolbar-button" data-command="p">P</button>
+                <button class="toolbar-button" data-command="formatBlock" data-value="p">P</button>
+                <select id="font-size" class="toolbar-select" title="Font Size">
+                    <option value="">Font Size</option>
+                    <option value="1">Small</option>
+                    <option value="2">Medium</option>
+                    <option value="3">Large</option>
+                    <option value="4">X-Large</option>
+                    <option value="5">XX-Large</option>
+                    <option value="6">XXX-Large</option>
+                    <option value="7">XXXX-Large</option>
+                </select>
                 <button class="toolbar-button" data-command="createLink">🔗</button>
                 <button class="toolbar-button" data-command="unlink">💔</button>
                 <button class="toolbar-button" data-command="undo">↩️</button>
@@ -352,6 +379,19 @@
                 status.textContent = 'Saving...';
                 clearTimeout(saveTimeout);
                 saveTimeout = setTimeout(saveState, 500);
+            });
+
+            // Font Size functionality
+            const fontSizeSelect = document.getElementById('font-size');
+            fontSizeSelect.addEventListener('change', () => {
+                if (fontSizeSelect.value) {
+                    document.execCommand('fontSize', false, fontSizeSelect.value);
+                    editor.focus();
+                    // Reset the dropdown to the placeholder after use
+                    setTimeout(() => {
+                        fontSizeSelect.selectedIndex = 0;
+                    }, 100);
+                }
             });
 
             // Toolbar functionality
