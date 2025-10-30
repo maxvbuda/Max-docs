@@ -1,279 +1,557 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Max Docs - Simple Text Editor</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --primary-color: #2563eb;
-            --background-color: #f8fafc;
-            --surface-color: #ffffff;
-            --border-color: #e2e8f0;
-            --text-color: #1e293b;
-            --text-muted: #64748b;
-            --font-family: 'Inter', sans-serif;
-            --shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
-        }
+<!DOCTYPE html><!DOCTYPE html>
 
-        body {
-            font-family: var(--font-family);
-            background-color: var(--background-color);
-            color: var(--text-color);
-            margin: 0;
-            display: flex;
-            justify-content: center;
-            align-items: flex-start;
-            min-height: 100vh;
-            padding: 2rem;
-        }
+<html lang="en"><html lang="en">
 
-                .container {
+<head><head>
+
+    <meta charset="UTF-8">    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Max Docs - Simple Text Editor</title>    <title>Max Docs - Simple Text Editor</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+
+    <style>    <style>
+
+        * { box-sizing: border-box; }        :root {
+
+        body {            --primary-color: #2563eb;
+
+            font-family: 'Inter', sans-serif;            --background-color: #f8fafc;
+
+            background-color: #f8fafc;            --surface-color: #ffffff;
+
+            margin: 0;            --border-color: #e2e8f0;
+
+            padding: 2rem;            --text-color: #1e293b;
+
+            display: flex;            --text-muted: #64748b;
+
+            justify-content: center;            --font-family: 'Inter', sans-serif;
+
+        }            --shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+
+        .container {        }
+
             width: 100%;
-            max-width: 800px;
-            display: flex;
-            flex-direction: column;
-            height: calc(100vh - 4rem);
-        }
 
-        .main-content {
-            flex-grow: 1;
-            display: flex;
-            flex-direction: column;
-            background-color: var(--surface-color);
-            border-radius: 8px;
-            box-shadow: var(--shadow);
-            border: 1px solid var(--border-color);
-            overflow: hidden;
-        }
+            max-width: 800px;        body {
 
-        .document-bar {
-            display: flex;
-            align-items: center;
-            padding: 0.5rem 0.75rem;
-            background-color: #f8fafc;
-            border-bottom: 1px solid var(--border-color);
-        }
+            background: white;            font-family: var(--font-family);
 
-        #document-select {
-            font-family: var(--font-family);
-            font-size: 1rem;
-            font-weight: 500;
-            border: none;
+            border-radius: 8px;            background-color: var(--background-color);
+
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);            color: var(--text-color);
+
+            border: 1px solid #e2e8f0;            margin: 0;
+
+            overflow: hidden;            display: flex;
+
+        }            justify-content: center;
+
+        .document-bar {            align-items: flex-start;
+
+            padding: 0.5rem 0.75rem;            min-height: 100vh;
+
+            background-color: #f8fafc;            padding: 2rem;
+
+            border-bottom: 1px solid #e2e8f0;        }
+
+            display: flex;
+
+            gap: 0.5rem;                .container {
+
+            align-items: center;            width: 100%;
+
+        }            max-width: 800px;
+
+        .document-bar select {            display: flex;
+
+            flex: 1;            flex-direction: column;
+
+            padding: 0.5rem;            height: calc(100vh - 4rem);
+
+            border: none;        }
+
             background: none;
-            padding: 0.5rem;
-            border-radius: 4px;
-            margin-right: auto;
-        }
-        
-        #document-select:hover {
-            background-color: #e2e8f0;
+
+            font-size: 1rem;        .main-content {
+
+            font-family: inherit;            flex-grow: 1;
+
+        }            display: flex;
+
+        .document-bar button {            flex-direction: column;
+
+            background: none;            background-color: var(--surface-color);
+
+            border: none;            border-radius: 8px;
+
+            cursor: pointer;            box-shadow: var(--shadow);
+
+            padding: 0.5rem;            border: 1px solid var(--border-color);
+
+            font-size: 1rem;            overflow: hidden;
+
+            border-radius: 4px;        }
+
         }
 
-        .doc-button {
-            background: none;
-            border: none;
-            cursor: pointer;
-            padding: 0.5rem;
-            margin-left: 0.25rem;
-            border-radius: 4px;
-            font-size: 1rem;
-            color: var(--text-muted);
-            transition: background-color 0.2s, color 0.2s;
-        }
+        .document-bar button:hover { background-color: #e2e8f0; }        .document-bar {
 
-        .doc-button:hover {
-            background-color: #e2e8f0;
-            color: var(--text-color);
-        }
+        .toolbar {            display: flex;
 
-        .toolbar {
-            display: flex;
-            flex-wrap: wrap;
-            align-items: center;
-            padding: 0.75rem;
-            background-color: #f1f5f9;
-            border-bottom: 1px solid var(--border-color);
-        }
+            padding: 0.75rem;            align-items: center;
 
-        .toolbar-button {
-            background: none;
-            border: none;
-            cursor: pointer;
-            padding: 0.5rem;
-            margin: 0 0.25rem;
-            border-radius: 4px;
-            font-size: 1rem;
-            color: var(--text-muted);
-            transition: background-color 0.2s, color 0.2s;
-        }
+            background-color: #f1f5f9;            padding: 0.5rem 0.75rem;
 
-        .toolbar-button:hover {
-            background-color: #e2e8f0;
-            color: var(--text-color);
-        }
-        
-        .toolbar-button.active {
-            background-color: #dbeafe;
-            color: var(--primary-color);
-        }
+            border-bottom: 1px solid #e2e8f0;            background-color: #f8fafc;
 
-        .toolbar-select {
-            font-family: var(--font-family);
-            font-size: 0.9rem;
-            padding: 0.35rem;
-            margin: 0 0.25rem;
-            border: 1px solid var(--border-color);
-            border-radius: 4px;
-            background-color: white;
-            color: var(--text-muted);
-            cursor: pointer;
-        }
+            display: flex;            border-bottom: 1px solid var(--border-color);
 
-        .toolbar-select:focus {
-            outline: none;
-            border-color: var(--primary-color);
-        }
+            flex-wrap: wrap;        }
 
-        .editor {
-            padding: 2rem;
-            flex-grow: 1;
-            outline: none;
-            line-height: 1.7;
-            font-size: 16px;
-            overflow-y: auto;
-        }
-        
-        .editor:focus {
-            box-shadow: none;
-        }
+            gap: 0.25rem;
+
+        }        #document-select {
+
+        .toolbar button, .toolbar select {            font-family: var(--font-family);
+
+            background: none;            font-size: 1rem;
+
+            border: none;            font-weight: 500;
+
+            cursor: pointer;            border: none;
+
+            padding: 0.5rem;            background: none;
+
+            border-radius: 4px;            padding: 0.5rem;
+
+            font-size: 1rem;            border-radius: 4px;
+
+            color: #64748b;            margin-right: auto;
+
+        }        }
+
+        .toolbar button:hover, .toolbar select:hover {         
+
+            background-color: #e2e8f0;        #document-select:hover {
+
+            color: #1e293b;            background-color: #e2e8f0;
+
+        }        }
+
+        .toolbar select {
+
+            border: 1px solid #e2e8f0;        .doc-button {
+
+            background: white;            background: none;
+
+            padding: 0.35rem;            border: none;
+
+        }            cursor: pointer;
+
+        .editor {            padding: 0.5rem;
+
+            padding: 2rem;            margin-left: 0.25rem;
+
+            min-height: 500px;            border-radius: 4px;
+
+            outline: none;            font-size: 1rem;
+
+            font-size: 16px;            color: var(--text-muted);
+
+            line-height: 1.7;            transition: background-color 0.2s, color 0.2s;
+
+        }        }
 
         .footer {
-            padding: 0.75rem 1rem;
-            background-color: #f1f5f9;
-            border-top: 1px solid var(--border-color);
-            text-align: right;
-            font-size: 0.875rem;
-            color: var(--text-muted);
-        }
-    </style>
-</head>
-<body>
 
-    <div class="container">
-        <div class="main-content">
-            <div class="document-bar">
-                <select id="document-select"></select>
-                <button id="new-doc" class="doc-button" title="New Document">📄</button>
-                <button id="rename-doc" class="doc-button" title="Rename Document">✏️</button>
-                <button id="delete-doc" class="doc-button" title="Delete Document">🗑️</button>
-            </div>
-            <div class="toolbar">
-                <button class="toolbar-button" data-command="bold"><b>B</b></button>
-                <button class="toolbar-button" data-command="italic"><i>I</i></button>
-                <button class="toolbar-button" data-command="underline"><u>U</u></button>
-                <button class="toolbar-button" data-command="strikeThrough"><s>S</s></button>
-                <button class="toolbar-button" data-command="insertUnorderedList">●</button>
-                <button class="toolbar-button" data-command="insertOrderedList">1.</button>
-                <button class="toolbar-button" data-command="formatBlock" data-value="h1">H1</button>
-                <button class="toolbar-button" data-command="formatBlock" data-value="h2">H2</button>
-                <button class="toolbar-button" data-command="formatBlock" data-value="p">P</button>
-                <select id="font-size" class="toolbar-select" title="Font Size">
-                    <option value="">Font Size</option>
-                    <option value="1">Small</option>
-                    <option value="2">Medium</option>
-                    <option value="3">Large</option>
-                    <option value="4">X-Large</option>
-                    <option value="5">XX-Large</option>
-                    <option value="6">XXX-Large</option>
-                    <option value="7">XXXX-Large</option>
-                </select>
-                <button class="toolbar-button" data-command="createLink">🔗</button>
-                <button class="toolbar-button" data-command="unlink">💔</button>
-                <button class="toolbar-button" data-command="undo">↩️</button>
-                <button class="toolbar-button" data-command="redo">↪️</button>
-            </div>
-            <div id="editor" class="editor" contenteditable="true"></div>
-            <div class="footer">
-                <span id="status">Saved</span>
-            </div>
-        </div>
-    </div>
+            padding: 0.75rem 1rem;        .doc-button:hover {
+
+            background-color: #f1f5f9;            background-color: #e2e8f0;
+
+            border-top: 1px solid #e2e8f0;            color: var(--text-color);
+
+            text-align: right;        }
+
+            font-size: 0.875rem;
+
+            color: #64748b;        .toolbar {
+
+        }            display: flex;
+
+    </style>            flex-wrap: wrap;
+
+</head>            align-items: center;
+
+<body>            padding: 0.75rem;
+
+    <div class="container">            background-color: #f1f5f9;
+
+        <div class="document-bar">            border-bottom: 1px solid var(--border-color);
+
+            <select id="docSelect"></select>        }
+
+            <button onclick="newDoc()" title="New Document">📄</button>
+
+            <button onclick="renameDoc()" title="Rename">✏️</button>        .toolbar-button {
+
+            <button onclick="deleteDoc()" title="Delete">🗑️</button>            background: none;
+
+        </div>            border: none;
+
+        <div class="toolbar">            cursor: pointer;
+
+            <button onclick="format('bold')"><b>B</b></button>            padding: 0.5rem;
+
+            <button onclick="format('italic')"><i>I</i></button>            margin: 0 0.25rem;
+
+            <button onclick="format('underline')"><u>U</u></button>            border-radius: 4px;
+
+            <button onclick="format('strikeThrough')"><s>S</s></button>            font-size: 1rem;
+
+            <button onclick="format('insertUnorderedList')">●</button>            color: var(--text-muted);
+
+            <button onclick="format('insertOrderedList')">1.</button>            transition: background-color 0.2s, color 0.2s;
+
+            <button onclick="heading('h1')">H1</button>        }
+
+            <button onclick="heading('h2')">H2</button>
+
+            <button onclick="heading('p')">P</button>        .toolbar-button:hover {
+
+            <select id="fontSize" onchange="setFontSize()">            background-color: #e2e8f0;
+
+                <option value="">Size</option>            color: var(--text-color);
+
+                <option value="10px">10px</option>        }
+
+                <option value="12px">12px</option>        
+
+                <option value="14px">14px</option>        .toolbar-button.active {
+
+                <option value="16px">16px</option>            background-color: #dbeafe;
+
+                <option value="18px">18px</option>            color: var(--primary-color);
+
+                <option value="24px">24px</option>        }
+
+                <option value="32px">32px</option>
+
+                <option value="48px">48px</option>        .toolbar-select {
+
+            </select>            font-family: var(--font-family);
+
+            <button onclick="addLink()">🔗</button>            font-size: 0.9rem;
+
+            <button onclick="format('unlink')">💔</button>            padding: 0.35rem;
+
+            <button onclick="format('undo')">↩️</button>            margin: 0 0.25rem;
+
+            <button onclick="format('redo')">↪️</button>            border: 1px solid var(--border-color);
+
+        </div>            border-radius: 4px;
+
+        <div id="editor" contenteditable="true" class="editor"></div>            background-color: white;
+
+        <div class="footer"><span id="status">Saved</span></div>            color: var(--text-muted);
+
+    </div>            cursor: pointer;
+
+        }
 
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const editor = document.getElementById('editor');
-            const status = document.getElementById('status');
-            const toolbar = document.querySelector('.toolbar');
+
+        let docs = {};        .toolbar-select:focus {
+
+        let currentId = null;            outline: none;
+
+        let saveTimer;            border-color: var(--primary-color);
+
+        }
+
+        function format(cmd) {
+
+            document.execCommand(cmd, false, null);        .editor {
+
+            document.getElementById('editor').focus();            padding: 2rem;
+
+        }            flex-grow: 1;
+
+            outline: none;
+
+        function heading(tag) {            line-height: 1.7;
+
+            document.execCommand('formatBlock', false, '<' + tag + '>');            font-size: 16px;
+
+            document.getElementById('editor').focus();            overflow-y: auto;
+
+        }        }
+
+        
+
+        function setFontSize() {        .editor:focus {
+
+            const size = document.getElementById('fontSize').value;            box-shadow: none;
+
+            if (size) {        }
+
+                document.execCommand('fontSize', false, 7);
+
+                const fonts = document.querySelectorAll('font[size="7"]');        .footer {
+
+                fonts.forEach(f => {            padding: 0.75rem 1rem;
+
+                    f.removeAttribute('size');            background-color: #f1f5f9;
+
+                    f.style.fontSize = size;            border-top: 1px solid var(--border-color);
+
+                });            text-align: right;
+
+                document.getElementById('editor').focus();            font-size: 0.875rem;
+
+                setTimeout(() => document.getElementById('fontSize').selectedIndex = 0, 100);            color: var(--text-muted);
+
+            }        }
+
+        }    </style>
+
+</head>
+
+        function addLink() {<body>
+
+            const url = prompt('Enter URL:');
+
+            if (url) {    <div class="container">
+
+                const fullUrl = /^https?:\/\//i.test(url) ? url : 'http://' + url;        <div class="main-content">
+
+                document.execCommand('createLink', false, fullUrl);            <div class="document-bar">
+
+                document.getElementById('editor').focus();                <select id="document-select"></select>
+
+            }                <button id="new-doc" class="doc-button" title="New Document">📄</button>
+
+        }                <button id="rename-doc" class="doc-button" title="Rename Document">✏️</button>
+
+                <button id="delete-doc" class="doc-button" title="Delete Document">🗑️</button>
+
+        function save() {            </div>
+
+            if (currentId && docs[currentId]) {            <div class="toolbar">
+
+                docs[currentId].content = document.getElementById('editor').innerHTML;                <button class="toolbar-button" data-command="bold"><b>B</b></button>
+
+            }                <button class="toolbar-button" data-command="italic"><i>I</i></button>
+
+            localStorage.setItem('max-docs-multi', JSON.stringify({ docs, currentId }));                <button class="toolbar-button" data-command="underline"><u>U</u></button>
+
+            document.getElementById('status').textContent = 'Saved';                <button class="toolbar-button" data-command="strikeThrough"><s>S</s></button>
+
+        }                <button class="toolbar-button" data-command="insertUnorderedList">●</button>
+
+                <button class="toolbar-button" data-command="insertOrderedList">1.</button>
+
+        function load() {                                <button class="toolbar-button" data-command="formatBlock" data-value="h1">H1</button>
+
+            const saved = localStorage.getItem('max-docs-multi');                <button class="toolbar-button" data-command="formatBlock" data-value="h2">H2</button>
+
+            if (saved) {                <button class="toolbar-button" data-command="formatBlock" data-value="p">P</button>
+
+                const data = JSON.parse(saved);                <select id="font-size" class="toolbar-select" title="Font Size">
+
+                docs = data.docs || {};                    <option value="">Font Size</option>
+
+                currentId = data.currentId;                    <option value="10px">10px</option>
+
+            }                    <option value="12px">12px</option>
+
+                                <option value="14px">14px</option>
+
+            // Migrate old format                    <option value="16px">16px</option>
+
+            const old = localStorage.getItem('max-docs-content');                    <option value="18px">18px</option>
+
+            if (old && Object.keys(docs).length === 0) {                    <option value="24px">24px</option>
+
+                const id = 'doc-' + Date.now();                    <option value="32px">32px</option>
+
+                docs[id] = { name: 'Migrated Document', content: old };                    <option value="48px">48px</option>
+
+                currentId = id;                </select>
+
+                localStorage.removeItem('max-docs-content');                <button class="toolbar-button" data-command="createLink">🔗</button>
+
+            }                <button class="toolbar-button" data-command="unlink">💔</button>
+
+                            <button class="toolbar-button" data-command="undo">↩️</button>
+
+            // Create default doc if none exist                <button class="toolbar-button" data-command="redo">↪️</button>
+
+            if (Object.keys(docs).length === 0) {            </div>
+
+                const id = 'doc-' + Date.now();            <div id="editor" class="editor" contenteditable="true"></div>
+
+                docs[id] = { name: 'My First Document', content: '<h1>Welcome!</h1><p>Start typing...</p>' };            <div class="footer">
+
+                currentId = id;                <span id="status">Saved</span>
+
+            }            </div>
+
+                    </div>
+
+            // Ensure current doc exists    </div>
+
+            if (!currentId || !docs[currentId]) {
+
+                currentId = Object.keys(docs)[0];    <script>
+
+            }        document.addEventListener('DOMContentLoaded', () => {
+
+                        const editor = document.getElementById('editor');
+
+            render();            const status = document.getElementById('status');
+
+        }            const toolbar = document.querySelector('.toolbar');
+
             const docSelect = document.getElementById('document-select');
-            const newDocBtn = document.getElementById('new-doc');
-            const renameDocBtn = document.getElementById('rename-doc');
-            const deleteDocBtn = document.getElementById('delete-doc');
 
-            let state = {
-                documents: {},
-                currentDocId: null
-            };
+        function render() {            const newDocBtn = document.getElementById('new-doc');
 
-            function loadState() {
-                const savedState = localStorage.getItem('max-docs-multi');
-                if (savedState) {
-                    state = JSON.parse(savedState);
-                } else {
-                    // Initialize with a default document
+            const select = document.getElementById('docSelect');            const renameDocBtn = document.getElementById('rename-doc');
+
+            select.innerHTML = '';            const deleteDocBtn = document.getElementById('delete-doc');
+
+            for (let id in docs) {
+
+                const opt = document.createElement('option');            let state = {
+
+                opt.value = id;                documents: {},
+
+                opt.textContent = docs[id].name;                currentDocId: null
+
+                if (id === currentId) opt.selected = true;            };
+
+                select.appendChild(opt);
+
+            }            function loadState() {
+
+                            const savedState = localStorage.getItem('max-docs-multi');
+
+            if (currentId && docs[currentId]) {                if (savedState) {
+
+                document.getElementById('editor').innerHTML = docs[currentId].content;                    state = JSON.parse(savedState);
+
+            }                } else {
+
+        }                    // Initialize with a default document
+
                     const defaultId = `doc-${Date.now()}`;
-                    state = {
-                        documents: {
-                            [defaultId]: {
-                                name: 'My First Document',
-                                content: '<h1>Welcome to your new document!</h1><p>Start typing here...</p>'
-                            }
-                        },
-                        currentDocId: defaultId
-                    };
-                }
-                // Handle case where old single document exists
+
+        function newDoc() {                    state = {
+
+            const name = prompt('Document name:');                        documents: {
+
+            if (name && name.trim()) {                            [defaultId]: {
+
+                save();                                name: 'My First Document',
+
+                const id = 'doc-' + Date.now();                                content: '<h1>Welcome to your new document!</h1><p>Start typing here...</p>'
+
+                docs[id] = { name: name, content: '<h1>' + name + '</h1><p>Start writing...</p>' };                            }
+
+                currentId = id;                        },
+
+                save();                        currentDocId: defaultId
+
+                render();                    };
+
+            }                }
+
+        }                // Handle case where old single document exists
+
                 const oldContent = localStorage.getItem('max-docs-content');
-                if (oldContent && Object.keys(state.documents).length === 0) {
-                    const oldDocId = `doc-migrated-${Date.now()}`;
-                    state.documents[oldDocId] = {
-                        name: 'Migrated Document',
-                        content: oldContent
-                    };
-                    state.currentDocId = oldDocId;
-                    localStorage.removeItem('max-docs-content');
-                }
 
-                // Ensure there's always a current document selected
-                if (!state.currentDocId || !state.documents[state.currentDocId]) {
-                    const documentIds = Object.keys(state.documents);
-                    if (documentIds.length > 0) {
-                        state.currentDocId = documentIds[0];
-                    }
-                }
-            }
+        function renameDoc() {                if (oldContent && Object.keys(state.documents).length === 0) {
 
-            function saveState() {
-                // Update current doc content before saving
-                if (state.currentDocId && state.documents[state.currentDocId]) {
+            if (!currentId) return;                    const oldDocId = `doc-migrated-${Date.now()}`;
+
+            const name = prompt('New name:', docs[currentId].name);                    state.documents[oldDocId] = {
+
+            if (name && name.trim()) {                        name: 'Migrated Document',
+
+                docs[currentId].name = name;                        content: oldContent
+
+                save();                    };
+
+                render();                    state.currentDocId = oldDocId;
+
+            }                    localStorage.removeItem('max-docs-content');
+
+        }                }
+
+
+
+        function deleteDoc() {                // Ensure there's always a current document selected
+
+            if (!currentId || Object.keys(docs).length <= 1) {                if (!state.currentDocId || !state.documents[state.currentDocId]) {
+
+                alert("Can't delete the last document.");                    const documentIds = Object.keys(state.documents);
+
+                return;                    if (documentIds.length > 0) {
+
+            }                        state.currentDocId = documentIds[0];
+
+            if (confirm(`Delete "${docs[currentId].name}"?`)) {                    }
+
+                delete docs[currentId];                }
+
+                currentId = Object.keys(docs)[0];            }
+
+                save();
+
+                render();            function saveState() {
+
+            }                // Update current doc content before saving
+
+        }                if (state.currentDocId && state.documents[state.currentDocId]) {
+
                     state.documents[state.currentDocId].content = editor.innerHTML;
-                }
-                localStorage.setItem('max-docs-multi', JSON.stringify(state));
-                status.textContent = 'Saved';
-            }
-            
+
+        document.getElementById('docSelect').addEventListener('change', function() {                }
+
+            save();                localStorage.setItem('max-docs-multi', JSON.stringify(state));
+
+            currentId = this.value;                status.textContent = 'Saved';
+
+            render();            }
+
+        });            
+
             function render() {
-                // Populate dropdown
-                docSelect.innerHTML = '';
-                for (const id in state.documents) {
-                    const doc = state.documents[id];
-                    const option = document.createElement('option');
+
+        document.getElementById('editor').addEventListener('input', function() {                // Populate dropdown
+
+            document.getElementById('status').textContent = 'Saving...';                docSelect.innerHTML = '';
+
+            clearTimeout(saveTimer);                for (const id in state.documents) {
+
+            saveTimer = setTimeout(save, 500);                    const doc = state.documents[id];
+
+        });                    const option = document.createElement('option');
+
                     option.value = id;
-                    option.textContent = doc.name;
-                    if (id === state.currentDocId) {
-                        option.selected = true;
-                    }
+
+        load();                    option.textContent = doc.name;
+
+    </script>                    if (id === state.currentDocId) {
+
+</body>                        option.selected = true;
+
+</html>                    }
+
                     docSelect.appendChild(option);
                 }
 
@@ -372,6 +650,9 @@
 
             loadState();
             render();
+            
+            // Enable styleWithCSS for better formatting control
+            document.execCommand('styleWithCSS', false, true);
 
             // Save content to local storage
             let saveTimeout;
@@ -381,20 +662,149 @@
                 saveTimeout = setTimeout(saveState, 500);
             });
 
+            // Setup the editor for better HTML content editing
+            document.execCommand('defaultParagraphSeparator', false, 'p');
+            document.execCommand('styleWithCSS', false, true);
+
+            // Handle all formatting commands
+            function applyFormatting(command, value = null) {
+                editor.focus();
+                if (command === 'formatBlock') {
+                    document.execCommand(command, false, `<${value}>`);
+                } else {
+                    document.execCommand(command, false, value);
+                }
+            }
+
             // Font Size functionality
             const fontSizeSelect = document.getElementById('font-size');
             fontSizeSelect.addEventListener('change', () => {
                 if (fontSizeSelect.value) {
-                    document.execCommand('fontSize', false, fontSizeSelect.value);
                     editor.focus();
-                    // Reset the dropdown to the placeholder after use
+                    const selection = window.getSelection();
+                    
+                    // Check if text is selected
+                    if (selection.rangeCount > 0 && selection.toString().trim().length > 0) {
+                        // Apply font size to selected text
+                        const span = document.createElement('span');
+                        span.style.fontSize = fontSizeSelect.value;
+                        
+                        const range = selection.getRangeAt(0);
+                        const selectedContent = range.extractContents();
+                        span.appendChild(selectedContent);
+                        range.insertNode(span);
+                    } else {
+                        // Insert a new span at cursor position
+                        const span = document.createElement('span');
+                        span.style.fontSize = fontSizeSelect.value;
+                        span.innerHTML = '\u200B'; // Zero-width space
+                        
+                        const range = selection.getRangeAt(0);
+                        range.insertNode(span);
+                        
+                        // Position cursor inside the span
+                        range.setStart(span, 0);
+                        range.setEnd(span, span.childNodes.length);
+                        selection.removeAllRanges();
+                        selection.addRange(range);
+                    }
+                    
+                    // Reset the dropdown
                     setTimeout(() => {
                         fontSizeSelect.selectedIndex = 0;
                     }, 100);
+                    
+                    // Save the content
+                    clearTimeout(saveTimeout);
+                    status.textContent = 'Saving...';
+                    saveTimeout = setTimeout(saveState, 500);
                 }
             });
 
-            // Toolbar functionality
+            // Toolbar button click handler
+            toolbar.addEventListener('click', (e) => {
+                const button = e.target.closest('.toolbar-button');
+                if (!button) return;
+
+                const command = button.dataset.command;
+                const value = button.dataset.value || null;
+
+                // Special cases
+                if (command === 'createLink') {
+                    const url = prompt('Enter the URL:');
+                    if (url) {
+                        // Ensure URL has a protocol
+                        let fullUrl = url;
+                        if (!/^https?:\/\//i.test(url)) {
+                            fullUrl = 'http://' + url;
+                        }
+                        
+                        const selection = window.getSelection();
+                        if (selection.rangeCount > 0 && selection.toString().trim().length > 0) {
+                            // Apply to selection
+                            applyFormatting('createLink', fullUrl);
+                        } else {
+                            // Insert a new link
+                            const link = document.createElement('a');
+                            link.href = fullUrl;
+                            link.textContent = url;
+                            link.target = '_blank';
+                            
+                            const range = selection.getRangeAt(0);
+                            range.insertNode(link);
+                            
+                            // Move cursor after link
+                            range.setStartAfter(link);
+                            range.collapse(true);
+                            selection.removeAllRanges();
+                            selection.addRange(range);
+                        }
+                    }
+                } else {
+                    // Standard formatting
+                    applyFormatting(command, value);
+                }
+                
+                editor.focus();
+                updateToolbar();
+                
+                // Save after formatting
+                clearTimeout(saveTimeout);
+                status.textContent = 'Saving...';
+                saveTimeout = setTimeout(saveState, 500);
+            });
+            
+            // Update active state of buttons
+            function updateToolbar() {
+                try {
+                    const buttons = toolbar.querySelectorAll('.toolbar-button');
+                    buttons.forEach(button => {
+                        const command = button.dataset.command;
+                        if (!command) return;
+                        
+                        // Only apply active state to supported commands
+                        const supportedCommands = ['bold', 'italic', 'underline', 'strikeThrough', 'insertOrderedList', 'insertUnorderedList'];
+                        
+                        if (supportedCommands.includes(command)) {
+                            try {
+                                if (document.queryCommandState(command)) {
+                                    button.classList.add('active');
+                                } else {
+                                    button.classList.remove('active');
+                                }
+                            } catch (e) {
+                                button.classList.remove('active');
+                            }
+                        }
+                    });
+                } catch (e) {
+                    console.error("Error updating toolbar:", e);
+                }
+            }
+            
+            editor.addEventListener('keyup', updateToolbar);
+            editor.addEventListener('mouseup', updateToolbar);
+            editor.addEventListener('focus', updateToolbar);            // Toolbar functionality
             toolbar.addEventListener('click', (e) => {
                 const button = e.target.closest('.toolbar-button');
                 if (!button) return;
@@ -448,10 +858,18 @@
                 const buttons = toolbar.querySelectorAll('.toolbar-button');
                 buttons.forEach(button => {
                     const command = button.dataset.command;
-                    if (document.queryCommandState(command)) {
-                        button.classList.add('active');
-                    } else {
-                        button.classList.remove('active');
+                    
+                    try {
+                        // Only check state for commands that support queryCommandState
+                        if (command && ['bold', 'italic', 'underline', 'strikeThrough', 'insertUnorderedList', 'insertOrderedList'].includes(command)) {
+                            if (document.queryCommandState(command)) {
+                                button.classList.add('active');
+                            } else {
+                                button.classList.remove('active');
+                            }
+                        }
+                    } catch (e) {
+                        // Silently fail if the command isn't supported
                     }
                 });
             };
